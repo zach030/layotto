@@ -22,8 +22,8 @@ import (
 	"net"
 	"time"
 
-	"mosn.io/layotto/components/rpc"
 	common "mosn.io/layotto/components/pkg/common"
+	"mosn.io/layotto/components/rpc"
 	"mosn.io/mosn/pkg/server"
 )
 
@@ -63,7 +63,7 @@ func RegistChannel(proto string, f func(config ChannelConfig) (rpc.Channel, erro
 }
 
 type fakeTcpConn struct {
-	c net.Conn
+	c *Pipe
 }
 
 func (t *fakeTcpConn) Read(b []byte) (n int, err error) {
@@ -87,13 +87,13 @@ func (t *fakeTcpConn) RemoteAddr() net.Addr {
 }
 
 func (t *fakeTcpConn) SetDeadline(time time.Time) error {
-	return t.c.SetDeadline(time)
+	return nil
 }
 
 func (t *fakeTcpConn) SetReadDeadline(time time.Time) error {
-	return t.c.SetReadDeadline(time)
+	return nil
 }
 
 func (t fakeTcpConn) SetWriteDeadline(time time.Time) error {
-	return t.c.SetWriteDeadline(time)
+	return nil
 }

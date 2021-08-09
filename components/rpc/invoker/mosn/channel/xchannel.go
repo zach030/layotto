@@ -50,7 +50,7 @@ func newXChannel(config ChannelConfig) (rpc.Channel, error) {
 	m.pool = newConnPool(
 		config.Size,
 		func() (net.Conn, error) {
-			local, remote := net.Pipe()
+			local, remote := NewPipe()
 			localTcpConn := &fakeTcpConn{c: local}
 			remoteTcpConn := &fakeTcpConn{c: remote}
 			if err := acceptFunc(remoteTcpConn, config.Listener); err != nil {

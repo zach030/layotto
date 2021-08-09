@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/valyala/fasthttp"
-	"mosn.io/layotto/components/rpc"
 	common "mosn.io/layotto/components/pkg/common"
+	"mosn.io/layotto/components/rpc"
 	_ "mosn.io/mosn/pkg/stream/http"
 )
 
@@ -42,7 +42,7 @@ func newHttpChannel(config ChannelConfig) (rpc.Channel, error) {
 		pool: newConnPool(
 			config.Size,
 			func() (net.Conn, error) {
-				local, remote := net.Pipe()
+				local, remote := NewPipe()
 				localTcpConn := &fakeTcpConn{c: local}
 				remoteTcpConn := &fakeTcpConn{c: remote}
 				if err := acceptFunc(remoteTcpConn, config.Listener); err != nil {

@@ -82,8 +82,6 @@ import (
 	lock_zookeeper "mosn.io/layotto/components/lock/zookeeper"
 	runtime_lock "mosn.io/layotto/pkg/runtime/lock"
 
-	// Sequencer
-
 	// Actuator
 	_ "mosn.io/layotto/pkg/actuator"
 	"mosn.io/layotto/pkg/actuator/health"
@@ -250,6 +248,7 @@ func NewRuntimeGrpcServer(data json.RawMessage, opts ...grpc.ServerOption) (mgrp
 			}),
 		),
 	)
+
 	// 4. check if unhealthy
 	if err != nil {
 		actuator.GetRuntimeReadinessIndicator().SetUnhealthy(err.Error())

@@ -50,6 +50,10 @@ func newXChannel(config ChannelConfig) (rpc.Channel, error) {
 	m.pool = newConnPool(
 		config.Size,
 		func() (net.Conn, error) {
+			if _, _, err := net.SplitHostPort(config.Listener); err == nil {
+				return net.DialTimeout("tcp", config.Listener, time.Second)
+			}
+
 			local, remote := net.Pipe()
 			localTcpConn := &fakeTcpConn{c: local}
 			remoteTcpConn := &fakeTcpConn{c: remote}
@@ -93,9 +97,7 @@ func (m *xChannel) Do(req *rpc.RPCRequest) (*rpc.RPCResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	xstate := conn.state.(*xstate)
-
 	// encode request
 	frame := m.proto.ToFrame(req)
 	id := atomic.AddUint32(&xstate.reqid, 1)
@@ -105,7 +107,6 @@ func (m *xChannel) Do(req *rpc.RPCRequest) (*rpc.RPCResponse, error) {
 		m.pool.Put(conn, false)
 		return nil, common.Error(common.InternalCode, encErr.Error())
 	}
-
 	callChan := make(chan call, 1)
 	// set timeout
 	deadline, _ := ctx.Deadline()
@@ -117,7 +118,6 @@ func (m *xChannel) Do(req *rpc.RPCRequest) (*rpc.RPCResponse, error) {
 	xstate.mu.Lock()
 	xstate.calls[id] = callChan
 	xstate.mu.Unlock()
-
 	// write packet
 	if _, err := conn.Write(buf.Bytes()); err != nil {
 		m.removeCall(xstate, id)
@@ -125,7 +125,6 @@ func (m *xChannel) Do(req *rpc.RPCRequest) (*rpc.RPCResponse, error) {
 		return nil, common.Error(common.UnavailebleCode, err.Error())
 	}
 	m.pool.Put(conn, false)
-
 	select {
 	case res := <-callChan:
 		if res.err != nil {

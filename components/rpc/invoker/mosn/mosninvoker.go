@@ -21,6 +21,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os/user"
+	"strconv"
+	"time"
 
 	"mosn.io/layotto/components/rpc"
 	"mosn.io/layotto/components/rpc/callback"
@@ -32,6 +35,8 @@ import (
 const (
 	Name = "mosn"
 )
+
+var LayottoStatLogger *log.Logger
 
 type mosnInvoker struct {
 	channel rpc.Channel
@@ -73,6 +78,12 @@ func (m *mosnInvoker) Init(conf rpc.RpcConfig) error {
 		return err
 	}
 	m.channel = channel
+	usr, err := user.Current()
+	logRoot := usr.HomeDir + "/logs/tracelog/mosn/"
+	LayottoStatLogger, err = log.GetOrCreateLogger(logRoot+"layotto-client-stat.log", &log.Roller{MaxTime: 24 * 60 * 60})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -88,13 +99,13 @@ func (m *mosnInvoker) Invoke(ctx context.Context, req *rpc.RPCRequest) (resp *rp
 		req.Timeout = 3000
 	}
 	req.Ctx = ctx
+	startTime := time.Now()
 	log.DefaultLogger.Debugf("[runtime][rpc]request %+v", req)
 	req, err = m.cb.BeforeInvoke(req)
 	if err != nil {
 		log.DefaultLogger.Errorf("[runtime][rpc]before filter error %s", err.Error())
 		return nil, err
 	}
-
 	resp, err = m.channel.Do(req)
 	if err != nil {
 		log.DefaultLogger.Errorf("[runtime][rpc]error %s", err.Error())
@@ -106,5 +117,14 @@ func (m *mosnInvoker) Invoke(ctx context.Context, req *rpc.RPCRequest) (resp *rp
 	if err != nil {
 		log.DefaultLogger.Errorf("[runtime][rpc]after filter error %s", err.Error())
 	}
+	afterInvokeTime := time.Now()
+	rpcId := req.Header.Get("rpc_trace_context.sofaRpcId")
+	traceId := req.Header.Get("rpc_trace_context.sofaTraceId")
+
+	LayottoStatLogger.Printf("%+v,%v,%+v",
+		rpcId,
+		traceId,
+		strconv.FormatInt(afterInvokeTime.Sub(startTime).Nanoseconds()/1000, 10),
+	)
 	return resp, err
 }

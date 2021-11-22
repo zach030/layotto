@@ -19,7 +19,7 @@
     - [健康检查、查询运行时元数据](zh/start/actuator/start.md)
     - [trace管理](zh/start/trace/trace.md)
     - [OSS访问文件](zh/start/file/start.md)
-    - [使用WASM进行多语言编程](zh/start/wasm/start.md)
+    - [将业务逻辑通过 WASM 下沉进sidecar](zh/start/wasm/start.md)
     - [基于 WASM 跟 Runtime 实现的 Faas 模型](zh/start/faas/start.md)
 - 用户手册
     - 功能介绍
@@ -35,7 +35,7 @@
     - [grpc API 文档](https://github.com/mosn/layotto/blob/main/docs/en/api_reference/api_reference_v1.md)
     - SDK文档    
         - [go sdk](zh/sdk_reference/go/start.md)
-        - [java sdk](zh/sdk_reference/java/start.md)
+        - [java sdk](https://github.com/mosn/layotto/blob/main/sdk/java-sdk/README-zh.md)
         - [.net sdk](https://github.com/layotto/dotnet-sdk)
         - [js sdk](https://github.com/layotto/js-sdk)
     - [配置文档](zh/configuration/overview.md)

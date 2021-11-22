@@ -304,7 +304,7 @@ func (m *MosnRuntime) initRpcs(rpcs ...*rpc.Factory) error {
 
 func (m *MosnRuntime) initPubSubs(factorys ...*runtime_pubsub.Factory) error {
 	// 1. init components
-	log.DefaultLogger.Infof("[runtime] start initializing pubsub components")
+	log.DefaultLogger.Infof("[runtime] start initializing pubsub components %s", len(factorys))
 	// register all config store services implementation
 	m.pubSubRegistry.Register(factorys...)
 	for name, config := range m.runtimeConfig.PubSubManagement {

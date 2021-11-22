@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"mosn.io/layotto/sdk/go-sdk/client"
 )
 
@@ -30,14 +31,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = testPublish(cli)
+	testPublish(cli)
+	cli.Close()
+}
+
+func testPublish(cli client.Client) {
+	data := []byte("hello in-memory pubsub")
+	err := cli.PublishEvent(context.Background(), "in-memory", topic, data)
 	if err != nil {
 		panic(err)
 	}
-}
-
-func testPublish(cli client.Client) error {
-	return cli.PublishEvent(context.Background(), "in-memory", topic, []byte("hello in-memory pubsub"))
+	fmt.Printf("Published a new event.Topic: %s ,Data: %s \n", topic, data)
+	return
 }
 
 func testSubscribe(cli client.Client) error {
